@@ -1,0 +1,28 @@
+{
+  "name": "actapp_protest",
+  "version": "1.0.0",
+  "description": "react project - \"eventbrite for protests\"",
+  "main": "index.js",
+  "scripts": {
+    "db:install": "createdb protestdb",
+    "db:destroy": "dropdb protestdb",
+    "db:init": "psql protestdb < schema.sql",
+    "db:reset": "npm run db:destroy; npm run db:install && npm run db:init",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dstonem/actapp_protest.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dstonem/actapp_protest/issues"
+  },
+  "homepage": "https://github.com/dstonem/actapp_protest#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4",
+    "pg-promise": "^10.6.0"
+  }
+}
