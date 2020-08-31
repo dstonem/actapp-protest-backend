@@ -10,6 +10,8 @@ create table users (
     state VARCHAR not null,
     zipcode VARCHAR not null,
     profilePic VARCHAR,
+    points integer,
+    firstTimeUser boolean default true,
     cause_one TEXT,
     cause_two TEXT,
     cause_three TEXT
@@ -112,12 +114,12 @@ create table tags_posts (
     post_id VARCHAR
 );
 
-insert into users (username,password,firstName,lastName,email,streetaddress,city,state,zipcode,cause_one,cause_two,cause_three)
+insert into users (username,password,firstName,lastName,email,streetaddress,city,state,zipcode,points,cause_one,cause_two,cause_three)
 
 values 
-    ('dstonem','123456','dylan','stone-miller','dstonemiller@gmail.com', '1234 Marsh Trail Circle', 'Sandy Springs', 'Georgia', '29307','blm','election','climate'),
-    ('npatton','123456','nathan','patton','npatton@gmail.com', '1234 Ashford Road', 'Atlanta', 'Georgia', '22236','blm','election','climate'),
-    ('fgarcia','123456','frida','garcia','fgar@gmail.com', '1234 Ashford Road', 'Atlanta', 'Georgia', '22236','blm','election','climate')
+    ('dstonem','123456','dylan','stone-miller','dstonemiller@gmail.com', '1234 Marsh Trail Circle', 'Sandy Springs', 'Georgia', '29307',25,'blm','election','climate'),
+    ('npatton','123456','nathan','patton','npatton@gmail.com', '1234 Ashford Road', 'Atlanta', 'Georgia', '22236',25,'blm','election','climate'),
+    ('fgarcia','123456','frida','garcia','fgar@gmail.com', '1234 Ashford Road', 'Atlanta', 'Georgia', '22236',25,'blm','election','climate')
 ;
 
 insert into events (pic, title, description, location, startTime, endTime, eventDate, cause, policies, policy_descriptions, event_url, organizer)
