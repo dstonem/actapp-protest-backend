@@ -6,5 +6,9 @@ module.exports = {
         user:'dylan',
         database:'protestdb'
     },
-    secret:'lajhsdbvlkli7gfblqi2u3blf7l7IBLIBU7LK7ILALJKHVLFAWEreggjyYVYvkjy'
+    secret:{
+        secret:'tghvbREGsdgwhwghwrggERgerBHerb', 
+        resave: false, 
+        saveUninitialized: false
+    }
 }

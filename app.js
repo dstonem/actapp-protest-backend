@@ -1,9 +1,18 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-//move this db variable to the 'models' folder where the actual db queries are run
-const db = require('./db_connection')
+const {secret} = require('./config')
 const port = 3333
+const session = require('express-session')
+const eS = session(secret)
+// const authenticate = require('./authenticate')
+// const bodyParser = require('body-parser')
+const passport = require('passport')
+const Strategy = require('passport-local').Strategy
+const bcrypt = require('bcrypt')
+const SALT_ROUNDS = 10
+const db = require('./db_connection')
+// const pgp = require('pg-promise')()
 
 const User = require('./models/users-db-logic')()
 const Event = require('./models/events-db-logic')()
@@ -13,14 +22,177 @@ const Post = require('./models/posts-db-logic')()
 app.use(express.json())
 app.use(express.static(__dirname+"/site"))
 app.use(cors())
+// app.use(bodyParser.urlencoded({extended:true}))
+app.use(express.urlencoded({extended: true}))
+
+// app.use(session({
+//     secret: secret,
+//     resave: false,
+//     saveUninitialized: false
+// }))
+
+// const secret = {secret:'tghvbREGsdgwhwghwrggERgerBHerb', resave: false, saveUninitialized: false}
+
+// const passInfo = (req, res, next) => {
+//     res.db = db
+//     res.saltRounds = SALT_ROUNDS
+//     res.bcrypt = bcrypt
+//     next() 
+// }
+// app.use(passInfo)
+app.use(eS)
+app.use(passport.initialize());
+app.use(passport.session());
+
+// seperate pg promise
+passport.use(new Strategy((username,password,callback)=>{
+    // console.log(username, password)
+    db.one(`SELECT * FROM users WHERE username='${username}'`)
+    .then(u=>{
+        console.log(u,'51') //
+        bcrypt.compare(password, u.password)
+        .then(result=>{
+            if(!result) return callback(null,false)
+            return callback(null, u)
+        })
+        // return callback(null, u) // delete/comment this out later
+    })
+    .catch(()=>callback(null,false))
+}))
+passport.serializeUser((user,callback)=>callback(null, user.id))
+passport.deserializeUser((id,callback)=>{
+    db.one(`SELECT * FROM users WHERE id='${id}'`)
+    .then(u=>{
+        console.log(u,'65')
+        return callback(null,u)
+    })
+    .catch(()=>callback({'not-found':'No User With That ID Is Found'}))
+})
+
+const checkIsLoggedIn = (req,res,next) =>{
+    if(req.isAuthenticated()) return next()
+    return res.send('error')
+}
+
+const createUser = async (req,res,next) => {
+    //if confirmed matches password{
+    console.log(req.body,'68')
+    let hash = await bcrypt.hash(req.body.password, SALT_ROUNDS)
+    ///////USE THIS TO MAKE SURE THE DB DOESN'T GET FUCKED UP BY SINGLE APOSTROPHES
+    // const searchRegExp = /'/g;
+    // const replaceWith = "''";
+    // const result = req.body.firstName.replace(searchRegExp, replaceWith)
+    let newUser = await db.one(`INSERT INTO users (username,password,firstName,lastName,email,streetaddress,city,state,zipcode,cause_one,cause_two,cause_three) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,[req.body.username,hash,req.body.firstName,req.body.lastName,req.body.email,req.body.streetaddress,req.body.city,req.body.state,req.body.zipcode,req.body.cause1,req.body.cause2,req.body.cause3])
+    next()
+    return newUser
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+// LOGINS
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+app.post('/login', passport.authenticate('local'), (req,res) => {
+    //session here is not being saved elsewhere, 
+    // let username = req.body.username
+    // let password = req.body.password
+
+    // if(req.session){
+    //     req.session.username = username
+    //     req.session.password = password
+    // }
+
+    // let isValid = await User.login(req.session.username,req.session.password)
+    // console.log(`User ID: ${isValid.id}`)
+    // if(isValid){
+    //     //User.getUser -> set each of the req.session properties to user's info, send all info down the line
+    //     req.session.user_id = isValid.id
+    //     res.send({username:req.session.username,user_id:req.session.user_id})
+    // } else {
+    //     res.send('failed')
+    // }
+    console.log(req.user,'113')
+    res.send(req.user)
+})
+
+app.post('/login/register', createUser, async (req,res,next) => {
+    // let username = req.body.username
+    // let password = req.body.password
+    // let firstName = req.body.firstName
+    // let lastName = req.body.lastName
+    // let email = req.body.email
+    // let streetaddress = req.body.streetaddress
+    // let city = req.body.city
+    // let state = req.body.state
+    // let zipcode = req.body.state
+    // let cause1 = req.body.cause1
+    // let cause2 = req.body.cause2
+    // let cause3 = req.body.cause3
+    // let user_id
+    // let profilePic
+
+    // if(req.session) {
+    //     req.session.username = username
+    //     req.session.password = password
+    //     req.session.firstName = firstName
+    //     req.session.lastName = lastName
+    //     req.session.email = email
+    //     req.session.streetaddress = streetaddress
+    //     req.session.city = city
+    //     req.session.state = state
+    //     req.session.zipcode = zipcode
+    //     req.session.profilepic = profilePic
+    //     req.session.cause1 = cause1
+    //     req.session.cause2 = cause2
+    //     req.session.cause3 = cause3
+    //     req.session.user_id = user_id
+    // }
+
+    //user req.user after the session has started
+    
+    console.log(`User ID after registration: ${req.body.username}`)
+
+    res.redirect('/#/LoginForm')
+    
+})
+
+app.post('/login/survey', async (req, res, next) => {
+    let cause1 = req.body.cause1
+    let cause2 = req.body.cause2
+    let cause3 = req.body.cause3
+
+    // if(req.session){
+    //     req.session.cause1 = cause1
+    //     req.session.cause2 = cause2
+    //     req.session.cause3 = cause3
+    // }
+
+    console.log(req.user.username, '171')
+    let isValid = await User.storeUsersCauses(req.body.cause1, req.body.cause2, req.body.cause3, req.user.username)
+
+    if(isValid){
+        res.send(isValid)
+    } else {
+        res.redirect('/#/Survey')
+    }
+    
+})
 
 app.get('/user', async (req,res)=>{
-    let user = await User.getUsers(1)
+    let user = await User.getUser(req.user.username)
     res.send(user)
 })
 
 app.get('/events', async (req,res)=>{
     let events = await Event.getAllEvents()
+    res.send(events)
+})
+
+app.get('/usersEvents', async (req,res)=>{
+    console.log(req.session, req.user, '89')
+    let events = await Event.getEventsByUser(req.user.id)
+    // console.log(events)
     res.send(events)
 })
 
@@ -33,5 +205,20 @@ app.get('/posts', async (req,res)=>{
     let posts = await Post.getPostsByEvent(1)
     res.send(posts)
 })
+
+app.get('/attendees/:id', async (req,res)=>{
+    //it's logging req.params.id correctly
+    console.log('211',req.params.id)
+    res.send(await Event.getAttendeesByEvent(req.params.id))
+})
+
+app.get('/addAttendee/:event_id', async (req,res)=>{
+    console.log('216',req.user.id,req.params.event_id)
+    res.send(await Event.addAttendee(req.user.id,req.params.event_id))
+})
+
+// app.get('/me',(req,res) => res.send(
+//     {id:req.session.user_id}
+// ))
 
 app.listen(port)
