@@ -6,6 +6,12 @@ const Event = () => {
         return await db.any('select * from events')
     }
 
+    const getEvent = async (event_id) => {
+        let data = await db.one(`select * from events where id = ${event_id}`)
+        console.log(data)
+        return data
+    }
+
     const createEvent = async (cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) => {
         //insert policies into policies table and associate them with the event_id of this event
         //on the posts page: users have a dropdown from which they can select an event they recently 
@@ -24,7 +30,7 @@ const Event = () => {
     }
 
     const getAttendeesByEvent = async event_id => {
-        return await db.any(`select count(*) from attendees where event_id = ${event_id}`)
+        return await db.one(`select count(*) from attendees where event_id = ${event_id}`)
     }
 
     const checkIfUserAlreadyAttending = async (user_id,event_id)=> {
@@ -52,6 +58,7 @@ const Event = () => {
 
     return {
         getAllEvents,
+        getEvent,
         createEvent,
         getAttendeesByEvent,
         addAttendee,

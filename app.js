@@ -64,7 +64,7 @@ passport.serializeUser((user,callback)=>callback(null, user.id))
 passport.deserializeUser((id,callback)=>{
     db.one(`SELECT * FROM users WHERE id='${id}'`)
     .then(u=>{
-        console.log(u,'65')
+        // console.log(u,'65')
         return callback(null,u)
     })
     .catch(()=>callback({'not-found':'No User With That ID Is Found'}))
@@ -190,6 +190,12 @@ app.get('/events', async (req,res)=>{
     res.send(events)
 })
 
+app.get('/events/:event_id', async (req,res)=>{
+    let event = await Event.getEvent(req.params.event_id)
+    console.log('194',event)
+    res.send(event)
+})
+
 app.post('/events/create', async (req,res)=>{
     console.log(req.body,'193')
     let events = await Event.createEvent(req.body.cause,req.body.title,req.body.description,req.body.startTime,req.body.endTime,req.body.date,req.body.location,req.user.username,req.body.action1,req.body.action2,req.body.action3)
@@ -197,9 +203,9 @@ app.post('/events/create', async (req,res)=>{
 })
 
 app.get('/usersEvents', async (req,res)=>{
-    console.log(req.session, req.user, '89')
+    console.log(req.user, '206')
     let events = await Event.getEventsByUser(req.user.id)
-    // console.log(events)
+    console.log(events,'208')
     res.send(events)
 })
 
@@ -208,10 +214,60 @@ app.get('/policies', async (req,res)=>{
     res.send(policies)
 })
 
-app.get('/posts', async (req,res)=>{
-    let posts = await Post.getPostsByEvent(1)
+app.get('/posts/:event_id', async (req,res)=>{
+    let posts = await Post.getPostsByEvent(req.params.event_id)
     res.send(posts)
 })
+
+app.post('/addPost/:event_id', async (req,res)=>{
+    console.log(req.body,'223')
+    let post = await Post.addPost(req.body.picurl,req.body.body,req.user.username,req.params.event_id)
+    res.send(post)
+})
+
+// app.post("/addPost/:event_id", (req,res)=>{
+
+//     let form = {};
+
+//     //this will take all of the fields (including images) and put the value in the form object above
+//     new formidable.IncomingForm().parse(req)
+//     .on('field', (name, field) => {
+//         form[name] = field;
+//         //form.profile image is undefined here: console.log(`form.profile_image:${form.profile_image}`)
+//         console.log(`form[name]:${name},${form[name]}`)
+//       })
+//     .on('fileBegin', (name, file) => {
+//         //sets the path to save the image
+//         console.log(`is it even doing this fileBegin?: ${name}`)
+//         //NEXT STEP: try to get this file path working
+//         file.path = __dirname.replace('routes','') + 'public/images/' + new Date().getTime() + file.name
+//     })
+//     .on('file', (name, file) => {
+//         //console.log('Uploaded file', name, file);
+//         console.log("is it even doing this fileBegin?")
+//         //can use what the form.profile_image returns as an images src when using it elsewhere
+//         form.picurl = file.path.replace(__dirname.replace('routes','')+'public',"");
+//         console.log(`form.profile_image: ${form.picurl}`)
+//     })
+//     .on('end', async ()=>{
+
+//         console.log(`SESSION VALUES: picurl: ${form.picurl}, username: ${req.session.username}, body: ${form.body}, tags:${form.tags}`)
+//         //XXXXX needs attention - profilepic
+//         //let isValid = await Post.createPost(form.picurl, form.body, form.tags, req.session.user_id, req.session.username)
+//         let isValid = await Post.addPost(form.picurl, form.body, req.user.username,req.params.event_id)
+
+//         if(isValid){
+//             // let currentPost = await Post.selectPost(form.picurl)
+//             // let feed = []
+//             // feed.append(currentPost)
+//             res.send(isValid)
+//         } else {
+//             res.send({error: "needs more data"})
+//         }
+        
+//     })
+
+// })
 
 app.get('/attendees/:id', async (req,res)=>{
     //it's logging req.params.id correctly
