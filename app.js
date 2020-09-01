@@ -18,6 +18,7 @@ const User = require('./models/users-db-logic')()
 const Event = require('./models/events-db-logic')()
 const Policy = require('./models/policies-db-logic')()
 const Post = require('./models/posts-db-logic')()
+const Actions = require('./models/actions-db-logic')()
 
 app.use(express.json())
 app.use(express.static(__dirname+"/site"))
@@ -189,6 +190,12 @@ app.get('/events', async (req,res)=>{
     res.send(events)
 })
 
+app.post('/events/create', async (req,res)=>{
+    console.log(req.body,'193')
+    let events = await Event.createEvent(req.body.cause,req.body.title,req.body.description,req.body.startTime,req.body.endTime,req.body.date,req.body.location,req.user.username,req.body.action1,req.body.action2,req.body.action3)
+    res.send(events)
+})
+
 app.get('/usersEvents', async (req,res)=>{
     console.log(req.session, req.user, '89')
     let events = await Event.getEventsByUser(req.user.id)
@@ -215,6 +222,10 @@ app.get('/attendees/:id', async (req,res)=>{
 app.get('/addAttendee/:event_id', async (req,res)=>{
     console.log('216',req.user.id,req.params.event_id)
     res.send(await Event.addAttendee(req.user.id,req.params.event_id))
+})
+
+app.get('/actions/resources', async (req,res)=>{
+    res.send(await Actions.getAllActions())
 })
 
 // app.get('/me',(req,res) => res.send(

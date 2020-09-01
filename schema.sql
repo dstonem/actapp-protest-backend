@@ -29,6 +29,9 @@ create table events (
     cause VARCHAR,
     policies text ARRAY,
     policy_descriptions VARCHAR,
+    action1 varchar,
+    action2 varchar,
+    action3 varchar,
     event_url VARCHAR,
     organizer VARCHAR references users (username)
 );
@@ -71,6 +74,31 @@ create table policies (
     dateProposed date not null,
     -- not sure if this one needs to be in reference to this in the events table
     event_id integer references events (id)
+);
+
+create table actions (
+    id serial primary key,
+    cause varchar not null,
+    title varchar(150) not null,
+    points integer,
+    description varchar not null,
+    name1 varchar,
+    url1 varchar,
+    name2 varchar,
+    url2 varchar,
+    name3 varchar,
+    url3 varchar,
+    name4 varchar,
+    url4 varchar,
+    name5 varchar,
+    url5 varchar,
+    icon varchar,
+    mainUrl varchar,
+    reading varchar,
+    repeatable boolean,
+    additionalInfo varchar,
+    -- not sure if this one needs to be in reference to this in the events table
+    event_id varchar
 );
 
 create table policySupport (
@@ -194,3 +222,48 @@ insert into comments (comment,post_id,user_id,username)
 VALUES
     ('Nice! Love that place',1,2,'npatton'),
     ('Nice one!',4,1,'dstonem');
+
+--how do we join this actions table with the event_id table? or do we even need to?
+insert into actions (cause,title,points,description,name1,url1,name2,url2,name3,url3,name4,url4,name5,url5,icon,mainUrl,reading,repeatable,additionalInfo)
+VALUES
+    ('blm','Support a Black-Owned Business',50,'Click the link to find black-owned businesses near you!','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('blm','Support a Black Artist',50,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('blm','Support Organizations Supporting Black Life',50,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('blm','Share a Black Organization/Business on Social Media',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Support an Environmental Campaign',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Red-Meat-Free Week',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Purchase a Reusable Item',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Ride a Bike Instead of Drive (Three Times)',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Carpool',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Full Recycling Bin!',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('climate','Ride Public Transit Five Times',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Vote Early',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Vote By Mail',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Attend a City/County Council Meeting',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Support a Political Organization',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Join a Political Organization',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Sign a Petition',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('election','Learn About Local Politics',5,'dstonem','','','','','','','','','','','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,'');
+
+
+-- cause varchar not null,
+-- action varchar(150) not null,
+-- points integer,
+-- description varchar not null,
+-- name1 varchar,
+-- url1 varchar,
+-- name1 varchar,
+-- url1 varchar,
+-- name1 varchar,
+-- url1 varchar,
+-- name1 varchar,
+-- url1 varchar,
+-- name1 varchar,
+-- url1 varchar,
+-- icon varchar,
+-- mainUrl varchar,
+-- reading varchar,
+-- repeatable boolean,
+-- additionalInfo varchar,
+-- -- not sure if this one needs to be in reference to this in the events table
+-- event_id varchar
