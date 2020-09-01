@@ -6,6 +6,13 @@ const Event = () => {
         return await db.any('select * from events')
     }
 
+    const createEvent = async (cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) => {
+        //insert policies into policies table and associate them with the event_id of this event
+        //on the posts page: users have a dropdown from which they can select an event they recently 
+            //attended and have their post go into the eventPageFeed and the event data of who completed the action
+        return await db.any(`insert into events (cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) values ('${cause}','${title}','${description}','${startTime}','${endTime}','${eventDate}','${location}','${organizer}','${action1}','${action2}','${action3}')`)
+    }
+
     const getEventsByUser = async (user_id) => {
         let usersEvents = await db.any(`select (event_id) from attendees where user_id = '${user_id}'`)
         let usersEventsInfo = []
@@ -45,6 +52,7 @@ const Event = () => {
 
     return {
         getAllEvents,
+        createEvent,
         getAttendeesByEvent,
         addAttendee,
         getEventsByUser
