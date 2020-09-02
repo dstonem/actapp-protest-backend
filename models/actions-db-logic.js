@@ -6,8 +6,13 @@ const Actions = () => {
         return await db.any('select * from actions')
     }
 
+    const findActionResources = async actionId => {
+        return await db.one(`select * from actions where id = ${actionId}`)
+    }
+
     return {
-        getAllActions
+        getAllActions,
+        findActionResources
     }
 }
 

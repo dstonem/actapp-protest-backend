@@ -222,8 +222,36 @@ app.get('/posts/:event_id', async (req,res)=>{
 app.post('/addPost/:event_id', async (req,res)=>{
     console.log(req.body,'223')
     let post = await Post.addPost(req.body.picurl,req.body.body,req.user.username,req.params.event_id)
-    res.send(post)
+    return res.send(post)
 })
+
+app.get('/comments/:post_id', async (req,res)=>{
+    let comments = await Post.getCommentsByPost(req.params.post_id)
+    res.send(comments)
+})
+
+app.post('/addComment/:post_id', async (req,res)=>{
+    console.log(req.user)
+    let comment = await Post.addComment(req.body.comment,req.user.id,req.user.username,req.params.post_id)
+    return res.send(comment)
+})
+
+app.get('/likes/:post_id', async (req,res)=>{
+    let likes = await Post.getLikesByPost(req.params.post_id)
+    res.send(likes)
+})
+
+app.post('/addLike/:post_id', async (req,res)=>{
+    console.log(req.user)
+    await Post.addLike(req.user.id,req.params.post_id)
+    return res.send(true)
+})
+
+// app.post('/addImage', async (req,res)=>{
+//     console.log(req.body,'binary')
+//     let post = await Post.storeImageBinary(req.body.imgname,req.form.img)
+//     return res.send(post)
+// })
 
 // app.post("/addPost/:event_id", (req,res)=>{
 
@@ -282,6 +310,10 @@ app.get('/addAttendee/:event_id', async (req,res)=>{
 
 app.get('/actions/resources', async (req,res)=>{
     res.send(await Actions.getAllActions())
+})
+
+app.get('/actions/resources/:action', async (req,res)=>{
+    res.send(await Actions.findActionResources(req.params.action))
 })
 
 // app.get('/me',(req,res) => res.send(
