@@ -12,11 +12,11 @@ const Event = () => {
         return data
     }
 
-    const createEvent = async (cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) => {
+    const createEvent = async (pic,cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) => {
         //insert policies into policies table and associate them with the event_id of this event
         //on the posts page: users have a dropdown from which they can select an event they recently 
             //attended and have their post go into the eventPageFeed and the event data of who completed the action
-        return await db.any(`insert into events (cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) values ('${cause}','${title}','${description}','${startTime}','${endTime}','${eventDate}','${location}','${organizer}','${action1}','${action2}','${action3}')`)
+        return await db.any(`insert into events (pic,cause,title,description,startTime,endTime,eventDate,location,organizer,action1,action2,action3) values ('${pic}','${cause}','${title}','${description}','${startTime}','${endTime}','${eventDate}','${location}','${organizer}','${action1}','${action2}','${action3}')`)
     }
 
     const getEventsByUser = async (user_id) => {
