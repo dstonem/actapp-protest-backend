@@ -119,6 +119,7 @@ create table policySupport (
 
 create table posts (
     id SERIAL PRIMARY KEY,
+    date_posted TIMESTAMP default now(),
     picurl text not null,
     body VARCHAR not null,
     causes VARCHAR,
@@ -204,19 +205,19 @@ VALUES
     ('npatton',2,'')
 ;
 
-insert into posts (picurl,body,causes,post_url,user_id,username,event_id) 
+insert into posts (date_posted,picurl,body,causes,post_url,user_id,username,event_id) 
 values
-    ('/images/icons/blm_icon.png','Receipt from Le Petit Marche in Kirkwood','blm','post1',1,'dstonem',1),
-    ('/images/icons/blm_icon.png','Built an app prototype to collect data on how best to support sustained activism','blm','post2',1,'dstonem',2),
-    ('/images/icons/environment_icon.png','Grew my own pumpkin for Halloween this year!','climate','post3',1,'dstonem',1),
+    ('2004-10-19 10:23:54','/images/icons/blm_icon.png','Receipt from Le Petit Marche in Kirkwood','blm','post1',1,'dstonem',1),
+    ('2004-10-20 10:23:54','/images/icons/blm_icon.png','Built an app prototype to collect data on how best to support sustained activism','blm','post2',1,'dstonem',2),
+    ('2004-10-21 10:23:54','/images/icons/environment_icon.png','Grew my own pumpkin for Halloween this year!','climate','post3',1,'dstonem',1),
     
-    ('/images/icons/environment_icon.png','Built this building using sustainable materials','climate','post4',2,'npatton',2),
-    ('/images/icons/blm_icon.png','I love Le Petit Marche!','blm','post5',2,'npatton',1),
-    ('/images/icons/environment_icon.png','Started cooking with my own biofuel made from compost tea! Come enjoy a yard-to-table meal cooked with sustainable fuel!','climate','post6',2,'npatton',3),
+    ('2004-10-22 10:23:54','/images/icons/environment_icon.png','Built this building using sustainable materials','climate','post4',2,'npatton',2),
+    ('2004-10-23 10:23:54','/images/icons/blm_icon.png','I love Le Petit Marche!','blm','post5',2,'npatton',1),
+    ('2004-10-24 10:23:54','/images/icons/environment_icon.png','Started cooking with my own biofuel made from compost tea! Come enjoy a yard-to-table meal cooked with sustainable fuel!','climate','post6',2,'npatton',3),
     
-    ('/images/icons/election_icon.png','I voted early!','election','post7',3,'fgarcia',1),
-    ('/images/icons/environment_icon.png','I just bought these sustainable silicone baggies and I found out you can COOK things in them!','climate','post8',3,'fgarcia',3),
-    ('/images/icons/blm_icon.png','Just signed up for this professional development course! Supporting a black entrepreneur!','blm','post9',3,'fgarcia',3)
+    ('2004-10-25 10:23:54','/images/icons/election_icon.png','I voted early!','election','post7',3,'fgarcia',1),
+    ('2004-10-26 10:23:54','/images/icons/environment_icon.png','I just bought these sustainable silicone baggies and I found out you can COOK things in them!','climate','post8',3,'fgarcia',3),
+    ('2004-10-27 10:23:54','/images/icons/blm_icon.png','Just signed up for this professional development course! Supporting a black entrepreneur!','blm','post9',3,'fgarcia',3)
 ;
 
 insert into likes (user_id, post_id)
@@ -269,7 +270,8 @@ VALUES
 
     ('blm','Support a Black Artist',50,'Buy some art!','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
     ('blm','Support Organizations Supporting Black Life',50,'','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
-    ('blm','Share a Black Organization/Business on Social Media',5,'dstonem','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('blm','Share Black Organizations on Social Media',5,'dstonem','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
+    ('blm','Volunteer',5,'dstonem','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
     ('climate','Support an Environmental Campaign',5,'dstonem','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
     ('climate','Red-Meat-Free Week',5,'dstonem','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),
     ('climate','Purchase a Reusable Item',5,'dstonem','name1','url1','pic1','description1','name2','url2','pic2','description2','name3','url3','pic3','description3','name4','url4','pic4','description4','name5','url5','pic5','description5','/images/icons/blm_icon.png','http://yelp.com','https://www.vox.com/first-person/2020/5/28/21272380/black-mothers-grief-sadness-covid-19',true,''),

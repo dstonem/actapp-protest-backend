@@ -12,6 +12,7 @@ const Strategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
 const SALT_ROUNDS = 10
 const db = require('./db_connection')
+const fileUpload = require('express-fileupload')
 // const pgp = require('pg-promise')()
 
 const User = require('./models/users-db-logic')()
@@ -25,29 +26,21 @@ app.use(express.static(__dirname+"/site"))
 app.use(cors())
 // app.use(bodyParser.urlencoded({extended:true}))
 app.use(express.urlencoded({extended: true}))
+app.use(fileUpload())
 
-// app.use(session({
-//     secret: secret,
-//     resave: false,
-//     saveUninitialized: false
-// }))
-
-// const secret = {secret:'tghvbREGsdgwhwghwrggERgerBHerb', resave: false, saveUninitialized: false}
-
-// const passInfo = (req, res, next) => {
-//     res.db = db
-//     res.saltRounds = SALT_ROUNDS
-//     res.bcrypt = bcrypt
-//     next() 
-// }
-// app.use(passInfo)
 app.use(eS)
 app.use(passport.initialize());
 app.use(passport.session());
 
-// seperate pg promise
+// const removeApostrophes = async (req,res,next) => {
+//     const searchRegExp = /'/g;
+//     const replaceWith = "''";
+//     const result = req.body.firstName.replace(searchRegExp, replaceWith)
+// }
+
+// app.use(removeApostrophes())
+
 passport.use(new Strategy((username,password,callback)=>{
-    // console.log(username, password)
     db.one(`SELECT * FROM users WHERE username='${username}'`)
     .then(u=>{
         console.log(u,'51') //
@@ -56,7 +49,6 @@ passport.use(new Strategy((username,password,callback)=>{
             if(!result) return callback(null,false)
             return callback(null, u)
         })
-        // return callback(null, u) // delete/comment this out later
     })
     .catch(()=>callback(null,false))
 }))
@@ -76,13 +68,8 @@ const checkIsLoggedIn = (req,res,next) =>{
 }
 
 const createUser = async (req,res,next) => {
-    //if confirmed matches password{
     console.log(req.body,'68')
     let hash = await bcrypt.hash(req.body.password, SALT_ROUNDS)
-    ///////USE THIS TO MAKE SURE THE DB DOESN'T GET FUCKED UP BY SINGLE APOSTROPHES
-    // const searchRegExp = /'/g;
-    // const replaceWith = "''";
-    // const result = req.body.firstName.replace(searchRegExp, replaceWith)
     let newUser = await db.one(`INSERT INTO users (username,password,firstName,lastName,email,streetaddress,city,state,zipcode,cause_one,cause_two,cause_three) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,[req.body.username,hash,req.body.firstName,req.body.lastName,req.body.email,req.body.streetaddress,req.body.city,req.body.state,req.body.zipcode,req.body.cause1,req.body.cause2,req.body.cause3])
     next()
     return newUser
@@ -95,81 +82,16 @@ const createUser = async (req,res,next) => {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 app.post('/login', passport.authenticate('local'), (req,res) => {
-    //session here is not being saved elsewhere, 
-    // let username = req.body.username
-    // let password = req.body.password
-
-    // if(req.session){
-    //     req.session.username = username
-    //     req.session.password = password
-    // }
-
-    // let isValid = await User.login(req.session.username,req.session.password)
-    // console.log(`User ID: ${isValid.id}`)
-    // if(isValid){
-    //     //User.getUser -> set each of the req.session properties to user's info, send all info down the line
-    //     req.session.user_id = isValid.id
-    //     res.send({username:req.session.username,user_id:req.session.user_id})
-    // } else {
-    //     res.send('failed')
-    // }
     console.log(req.user,'113')
     res.send(req.user)
 })
 
 app.post('/login/register', createUser, async (req,res,next) => {
-    // let username = req.body.username
-    // let password = req.body.password
-    // let firstName = req.body.firstName
-    // let lastName = req.body.lastName
-    // let email = req.body.email
-    // let streetaddress = req.body.streetaddress
-    // let city = req.body.city
-    // let state = req.body.state
-    // let zipcode = req.body.state
-    // let cause1 = req.body.cause1
-    // let cause2 = req.body.cause2
-    // let cause3 = req.body.cause3
-    // let user_id
-    // let profilePic
-
-    // if(req.session) {
-    //     req.session.username = username
-    //     req.session.password = password
-    //     req.session.firstName = firstName
-    //     req.session.lastName = lastName
-    //     req.session.email = email
-    //     req.session.streetaddress = streetaddress
-    //     req.session.city = city
-    //     req.session.state = state
-    //     req.session.zipcode = zipcode
-    //     req.session.profilepic = profilePic
-    //     req.session.cause1 = cause1
-    //     req.session.cause2 = cause2
-    //     req.session.cause3 = cause3
-    //     req.session.user_id = user_id
-    // }
-
-    //user req.user after the session has started
-    
     console.log(`User ID after registration: ${req.body.username}`)
-
     res.redirect('/#/LoginForm')
-    
 })
 
 app.post('/login/survey', async (req, res, next) => {
-    let cause1 = req.body.cause1
-    let cause2 = req.body.cause2
-    let cause3 = req.body.cause3
-
-    // if(req.session){
-    //     req.session.cause1 = cause1
-    //     req.session.cause2 = cause2
-    //     req.session.cause3 = cause3
-    // }
-
-    console.log(req.user.username, '171')
     let isValid = await User.storeUsersCauses(req.body.cause1, req.body.cause2, req.body.cause3, req.user.username)
 
     if(isValid){
@@ -177,12 +99,28 @@ app.post('/login/survey', async (req, res, next) => {
     } else {
         res.redirect('/#/Survey')
     }
-    
 })
 
 app.get('/user', async (req,res)=>{
     let user = await User.getUser(req.user.username)
     res.send(user)
+})
+
+app.post('/user/profilePic/:username', async (req,res)=>{
+    if(req.files === null) {
+        return res.status(400).json({msg:'No file uploaded'})
+    }
+
+    const now = Date.now()
+
+    const file = req.files.file
+    console.log(file,'117')
+    file.mv(`/Users/dylan/dc_projects/actapp-protest/public/images/${now}_${file.name}`, err => {
+        console.log(err)
+        return res.status(500).send(err)
+    })
+    await User.updateProfilePic(`/images/${now}_${file.name}`,req.params.username)
+    res.json({ fileName: file.name, filePath: `/images/${file.name}`})
 })
 
 app.get('/events', async (req,res)=>{
@@ -192,20 +130,16 @@ app.get('/events', async (req,res)=>{
 
 app.get('/events/:event_id', async (req,res)=>{
     let event = await Event.getEvent(req.params.event_id)
-    console.log('194',event)
     res.send(event)
 })
 
 app.post('/events/create', async (req,res)=>{
-    console.log(req.body,'193')
-    let events = await Event.createEvent(req.body.cause,req.body.title,req.body.description,req.body.startTime,req.body.endTime,req.body.date,req.body.location,req.user.username,req.body.action1,req.body.action2,req.body.action3)
+    let events = await Event.createEvent(req.body.pic,req.body.cause,req.body.title,req.body.description,req.body.startTime,req.body.endTime,req.body.date,req.body.location,req.user.username,req.body.action1,req.body.action2,req.body.action3)
     res.send(events)
 })
 
 app.get('/usersEvents', async (req,res)=>{
-    console.log(req.user, '206')
     let events = await Event.getEventsByUser(req.user.id)
-    console.log(events,'208')
     res.send(events)
 })
 
@@ -214,15 +148,45 @@ app.get('/policies', async (req,res)=>{
     res.send(policies)
 })
 
+app.get('/posts', async (req,res)=>{
+    let posts = await Post.getAllPosts()
+    res.send(posts)
+})
+
 app.get('/posts/:event_id', async (req,res)=>{
     let posts = await Post.getPostsByEvent(req.params.event_id)
     res.send(posts)
 })
 
 app.post('/addPost/:event_id', async (req,res)=>{
-    console.log(req.body,'223')
+    console.log(req.body,'218')
     let post = await Post.addPost(req.body.picurl,req.body.body,req.user.username,req.params.event_id)
+    console.log(post,'220')
     return res.send(post)
+})
+
+app.get('/usersPosts', async (req,res)=>{
+    let posts = await Post.getPostsByUser(req.user.username)
+    res.send(posts)
+})
+
+app.post('/upload/:event_id', async (req,res)=>{
+    if(req.files === null) {
+        return res.status(400).json({msg:'No file uploaded'})
+    }
+
+    const now = Date.now()
+
+    const file = req.files.file
+    console.log(req.body.postText,'234')
+    file.mv(`/Users/dylan/dc_projects/actapp-protest/public/images/${now}_${file.name}`, async err => {
+        console.log(err)
+        if(err){
+            return res.status(500).send(err)
+        }
+        await Post.addPost(`/images/${now}_${file.name}`,req.body.postText,req.user.username,req.params.event_id)
+        return res.json({ fileName: file.name, filePath: `/images/${file.name}`})
+    })
 })
 
 app.get('/comments/:post_id', async (req,res)=>{
@@ -231,20 +195,19 @@ app.get('/comments/:post_id', async (req,res)=>{
 })
 
 app.post('/addComment/:post_id', async (req,res)=>{
-    console.log(req.user)
     let comment = await Post.addComment(req.body.comment,req.user.id,req.user.username,req.params.post_id)
     return res.send(comment)
 })
 
 app.get('/likes/:post_id', async (req,res)=>{
-    let likes = await Post.getLikesByPost(req.params.post_id)
+    let likes = await Post.getLikesByPost(req.user.id,req.params.post_id)
     res.send(likes)
 })
 
 app.post('/addLike/:post_id', async (req,res)=>{
-    console.log(req.user)
-    await Post.addLike(req.user.id,req.params.post_id)
-    return res.send(true)
+    console.log(req.user,'239')
+    let addedLike = await Post.addLike(req.user.id,req.params.post_id)
+    return res.send(addedLike)
 })
 
 // app.post('/addImage', async (req,res)=>{

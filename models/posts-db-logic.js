@@ -1,13 +1,22 @@
 const db = require('../db_connection')
 
 const Post = () => {
+
+    const getAllPosts = async () => {
+        return await db.any(`select * from posts`)
+    }
     
     const getPostsByEvent = async event_id => {
         return await db.any(`select * from posts where event_id = ${event_id}`)
     }
 
+    const getPostsByUser = async username => {
+        return await db.any(`select * from posts where username = '${username}'`)
+    }
+
     const addPost = async (image,text,username,event_id) => {
-        return await db.any(`insert into posts (picurl,body,username,event_id) values ('${image}','${text}','${username}',${event_id})`)
+        console.log(image,text,username,event_id,'11 of posts-db-logic')
+        return await db.none(`insert into posts (picurl,body,username,event_id) values ('${image}','${text}','${username}',${event_id})`)
     }
 
     const getCommentsByPost = async post_id => {
@@ -15,19 +24,23 @@ const Post = () => {
     }
 
     const addComment = async (comment,user_id,username,post_id) => {
-        return await db.any(`insert into comments (comment,user_id,username,post_id) values ('${comment}','${user_id}','${username}',${post_id})`)
+        return await db.any(`insert into comments (comment,user_id,username,post_id) values ('${comment}','${user_id}','${username}',${post_id}) returning *`)
     }
 
-    const getLikesByPost = async post_id => {
-        return await db.one(`select count(*) from likes where post_id = ${post_id}`)
+    const getLikesByPost = async (user_id,post_id) => {
+        let checkIfLiked = await checkIfUserAlreadyLikedPost(user_id,post_id)
+        let likesCount = await db.one(`select count(*) from likes where post_id = ${post_id}`)
+        return [checkIfLiked,likesCount]
     }
 
     const checkIfUserAlreadyLikedPost = async (user_id,post_id)=> {
-        let getLikes = await db.one(`select (user_id) from likes where post_id = ${post_id}`)
-        console.log(getLikes.user_id,user_id)
+        let getLikes = await db.any(`select (user_id) from likes where post_id = ${post_id}`)
+        console.log(getLikes,user_id)
         let alreadyLikes = false
-        if(getLikes.user_id === user_id){
-            alreadyLikes = true
+        for(let i = 0; i < getLikes.length; i++){
+            if(getLikes[i].user_id === user_id){
+                alreadyLikes = true
+            }
         }
         console.log(alreadyLikes,'30')
         return alreadyLikes
@@ -37,13 +50,15 @@ const Post = () => {
         let alreadyLikes = await checkIfUserAlreadyLikedPost(user_id,post_id)
         console.log(alreadyLikes,'38')
         if(!alreadyLikes) {
-            return await db.none(`insert into likes (user_id,post_id) values (${user_id},${post_id})`)
+            return await db.one(`insert into likes (user_id,post_id) values (${user_id},${post_id}) returning *`)
         }
         return false
     }
     
     return {
+        getAllPosts,
         getPostsByEvent,
+        getPostsByUser,
         addPost,
         getCommentsByPost,
         addComment,
