@@ -15,6 +15,8 @@ create table users (
     cause_one TEXT,
     cause_two TEXT,
     cause_three TEXT
+    -- race/ethnicity
+    -- age
 );
 -- PROBABLY CHANGE THE START AND END TIMES TO STRINGS, DATES TOO UNLESS I CAN PULL IT OUT OF THE DATABASE AND CHANGE IT TO THE RIGHT FORMAT (2020-11-3 looks weird)
 create table events (

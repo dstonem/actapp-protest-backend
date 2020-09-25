@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const {secret} = require('./config')
-const port = 3333
+const port = 3456
 const session = require('express-session')
 const eS = session(secret)
 // const authenticate = require('./authenticate')
@@ -93,7 +93,6 @@ app.post('/login/register', createUser, async (req,res,next) => {
 
 app.post('/login/survey', async (req, res, next) => {
     let isValid = await User.storeUsersCauses(req.body.cause1, req.body.cause2, req.body.cause3, req.user.username)
-
     if(isValid){
         res.send(isValid)
     } else {
