@@ -42,6 +42,8 @@ let User = () => {
         return await db.one(`SELECT * FROM users WHERE username = '${username}'`)
     }
 
+    //getOtherUser
+
     return {
         // register,
         login,
